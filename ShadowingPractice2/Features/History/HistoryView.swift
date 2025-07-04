@@ -361,16 +361,35 @@ class HistoryViewModel: ObservableObject {
             let practiceCount = Int.random(in: 0...3)
             
             for practiceIndex in 0..<practiceCount {
-                var result = PracticeResult.sample
-                result.recordedAt = calendar.date(byAdding: .hour, value: -practiceIndex * 2, to: date)!
-                result.score = Double.random(in: 60...100)
-                result.practiceType = Bool.random() ? .reading : .shadowing
+                _ = calendar.date(byAdding: .hour, value: -practiceIndex * 2, to: date)!
+                
+                // 正しい初期化方法を使用
+                let wordAnalysis = [
+                    WordAnalysis(word: "This", type: .correct, position: 0),
+                    WordAnalysis(word: "is", type: .correct, position: 1),
+                    WordAnalysis(word: "a", type: .correct, position: 2),
+                    WordAnalysis(word: "test", type: .correct, position: 3)
+                ]
+                
+                let result = PracticeResult(
+                    recognizedText: "This is a test",
+                    originalText: "This is a test",
+                    wordAnalysis: wordAnalysis,
+                    recordingURL: nil,
+                    duration: TimeInterval.random(in: 30...180),
+                    practiceType: Bool.random() ? .reading : .shadowing
+                )
+                
+                // Note: createdAtは自動的に設定されるため、
+                // 日付を変更したい場合は別の方法を検討する必要があります
+                
                 results.append(result)
             }
         }
         
-        return results.sorted { $0.recordedAt > $1.recordedAt }
+        return results.sorted { $0.createdAt > $1.createdAt }
     }
+    
     
     private func calculateStatistics(from results: [PracticeResult]) -> HistoryStatistics {
         var stats = HistoryStatistics()
