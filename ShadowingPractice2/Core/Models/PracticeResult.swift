@@ -18,6 +18,11 @@ struct PracticeResult: Codable {
     let recognizedText: String
     let originalText: String
     
+    // 練習情報
+    let recordingURL: URL?
+    let duration: TimeInterval
+    let practiceType: PracticeMode
+    
     // 評価スコア
     let overallScore: Double        // 0.0 - 100.0
     let accuracyScore: Double       // 正確性スコア
@@ -37,13 +42,19 @@ struct PracticeResult: Codable {
         id: UUID = UUID(),
         recognizedText: String,
         originalText: String,
-        wordAnalysis: [WordAnalysis]
+        wordAnalysis: [WordAnalysis],
+        recordingURL: URL? = nil,
+        duration: TimeInterval = 0,
+        practiceType: PracticeMode = .reading
     ) {
         self.id = id
         self.createdAt = Date()
         self.recognizedText = recognizedText
         self.originalText = originalText
         self.wordAnalysis = wordAnalysis
+        self.recordingURL = recordingURL
+        self.duration = duration
+        self.practiceType = practiceType
         
         // スコア計算
         let (accuracy, fluency, overall) = Self.calculateScores(
@@ -137,6 +148,29 @@ extension PracticeResult {
         guard totalWords > 0 else { return 0 }
         return Double(correctWords) / Double(totalWords) * 100
     }
+    
+    /// スコア（overallScoreのエイリアス）
+    var score: Double {
+        return overallScore
+    }
+    
+    /// 正確性（accuracyScoreのエイリアス）
+    var accuracy: Double {
+        return accuracyScore
+    }
+    
+    /// 単語エラー率
+    var wordErrorRate: Double {
+        guard totalWords > 0 else { return 0 }
+        return Double(incorrectWords + missingWords) / Double(totalWords)
+    }
+    
+    /// 1分あたりの単語数（WPM）
+    var wordsPerMinute: Double {
+        guard duration > 0 else { return 0 }
+        let recognizedWordCount = recognizedText.split(separator: " ").count
+        return Double(recognizedWordCount) / (duration / 60.0)
+    }
 }
 
 // MARK: - Sample Data
@@ -153,7 +187,12 @@ extension PracticeResult {
             WordAnalysis(word: "text", type: .correct, position: 4),
             WordAnalysis(word: "for", type: .missing, position: 5),
             WordAnalysis(word: "testing", type: .missing, position: 6)
-        ]
+        ],
+        recordingURL: nil,
+        duration: 15.5,
+        practiceType: .reading
     )
+    
+    static let sample = sampleData // エイリアス
 }
 #endif

@@ -402,7 +402,7 @@ struct DetailView: View {
                     DetailRow(label: "単語エラー率", value: String(format: "%.1f%%", result.wordErrorRate * 100))
                     DetailRow(label: "認識単語数", value: "\(result.recognizedText.split(separator: " ").count)語")
                     DetailRow(label: "練習時間", value: formatDetailDuration(result.duration))
-                    DetailRow(label: "練習タイプ", value: result.practiceType == .reading ? "音読" : "シャドウィング")
+                    DetailRow(label: "練習タイプ", value: result.practiceType == PracticeMode.reading ? "音読" : "シャドウィング")
                 }
                 .padding()
                 .background(Color(.systemGray6))

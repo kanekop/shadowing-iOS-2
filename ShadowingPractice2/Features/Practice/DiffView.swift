@@ -164,19 +164,19 @@ struct DiffWordView: View {
 }
 
 // ラッピングHStack（単語の折り返し用）
-struct WrappingHStack: View {
+struct WrappingHStack<Content: View>: View {
     let alignment: HorizontalAlignment
     let spacing: CGFloat
-    let content: () -> AnyView
+    let content: Content
     
-    init<Content: View>(
+    init(
         alignment: HorizontalAlignment = .center,
         spacing: CGFloat = 8,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: () -> Content
     ) {
         self.alignment = alignment
         self.spacing = spacing
-        self.content = { AnyView(content()) }
+        self.content = content()
     }
     
     var body: some View {
@@ -190,7 +190,7 @@ struct WrappingHStack: View {
         var height = CGFloat.zero
         
         return ZStack(alignment: .topLeading) {
-            content()
+            content
                 .fixedSize()
                 .alignmentGuide(.leading) { dimensions in
                     if abs(width - dimensions.width) > geometry.size.width {
@@ -324,6 +324,6 @@ struct StatisticItem: View {
 // Preview
 struct DiffView_Previews: PreviewProvider {
     static var previews: some View {
-        DiffView(result: PracticeResult.sample)
+        DiffView(result: PracticeResult.sampleData)
     }
 }

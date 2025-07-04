@@ -92,7 +92,7 @@ struct HistoryView: View {
 // 統計サマリービュー
 struct StatisticsSummaryView: View {
     let statistics: HistoryStatistics
-    let period: HistoryView.TimePeriod
+    let period: TimePeriod
     
     var body: some View {
         VStack(spacing: 16) {
@@ -317,7 +317,7 @@ class HistoryViewModel: ObservableObject {
     @Published var statistics = HistoryStatistics()
     @Published var isLoading = false
     
-    func loadHistory(for period: HistoryView.TimePeriod) {
+    func loadHistory(for period: TimePeriod) {
         isLoading = true
         
         Task {
@@ -337,7 +337,7 @@ class HistoryViewModel: ObservableObject {
         }
     }
     
-    private func generateSampleResults(for period: HistoryView.TimePeriod) -> [PracticeResult] {
+    private func generateSampleResults(for period: TimePeriod) -> [PracticeResult] {
         var results: [PracticeResult] = []
         let calendar = Calendar.current
         let now = Date()

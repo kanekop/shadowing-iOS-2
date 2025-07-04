@@ -132,19 +132,26 @@ struct MaterialRecorderView: View {
     }
     
     private func startRecording() {
-        do {
-            try recorder.startRecording()
-            startTimer()
-        } catch {
-            // エラー処理
-            print("録音開始エラー: \(error)")
+        Task {
+            do {
+                try await recorder.startRecording(isMaterial: true, maxDuration: maxRecordingTime)
+                await MainActor.run {
+                    startTimer()
+                }
+            } catch {
+                // エラー処理
+                print("録音開始エラー: \(error)")
+            }
         }
     }
     
     private func stopRecording() {
-        recorder.stopRecording { url in
-            if url != nil {
+        recorder.stopRecording { result in
+            switch result {
+            case .success(_):
                 showingPreview = true
+            case .failure(let error):
+                print("録音停止エラー: \(error)")
             }
         }
         timer?.invalidate()

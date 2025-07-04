@@ -42,11 +42,17 @@ class PracticeViewModel: ObservableObject {
             recognized: recognizedText
         )
         
+        // 音声の長さを取得
+        let duration = try await getAudioDuration(from: url)
+        
         // 結果作成
         let result = PracticeResult(
             recognizedText: recognizedText,
             originalText: originalText,
-            wordAnalysis: comparisonResult.wordAnalysis
+            wordAnalysis: comparisonResult.wordAnalysis,
+            recordingURL: url,
+            duration: duration,
+            practiceType: mode
         )
         
         // 保存

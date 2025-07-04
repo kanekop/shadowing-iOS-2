@@ -1,7 +1,7 @@
 import SwiftUI
 import AVFoundation
 
-enum PracticeMode: String, CaseIterable {
+enum PracticeMode: String, CaseIterable, Codable {
     case reading = "音読"
     case shadowing = "シャドウィング"
     
