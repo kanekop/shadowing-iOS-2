@@ -330,15 +330,9 @@ class TextComparisonService {
 
 // MARK: - Convenience Extensions
 extension TextComparisonService {
-    /// シンプルな比較（デフォルトオプション使用）
-    static func compare(_ original: String, with recognized: String) -> PracticeResult {
+    /// シンプルな比較結果を返す
+    static func compare(_ original: String, with recognized: String) -> ComparisonResult {
         let service = TextComparisonService()
-        let comparison = service.compareTexts(original: original, recognized: recognized)
-        
-        return PracticeResult(
-            recognizedText: recognized,
-            originalText: original,
-            wordAnalysis: comparison.wordAnalysis
-        )
+        return service.compareTexts(original: original, recognized: recognized)
     }
 }

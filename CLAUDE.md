@@ -130,12 +130,14 @@ ShadowingPractice2/
 - `Core/Services/SpeechRecognizer.swift`: Speech-to-text functionality
 - `Core/Services/AudioRecorder.swift`: Audio recording management
 - `Core/Services/PracticeHistoryService.swift`: Practice history persistence and retrieval
+- `Core/Services/TextComparisonService.swift`: Text comparison and diff analysis
 - `Features/Practice/PracticeViewModel.swift`: Core practice logic
-- `Core/Models/PracticeResult.swift`: Practice result data model with scoring
+- `Core/Models/PracticeResult.swift`: Practice result data model with scoring (includes materialId)
 - `Core/Models/AppError.swift`: Unified error handling model
 - `Core/Models/AppError+Usage.swift`: Error handling implementation guidelines
 - `Core/Utilities/Logger.swift`: Centralized logging system
 - `Core/Utilities/FileManager+Extensions.swift`: File system helpers
+- `ARCHITECTURE.md`: Architectural decisions and data model relationships
 
 ## Development Guidelines
 
@@ -186,6 +188,8 @@ ShadowingPractice2/
 - **PracticeHistoryService**: Added for practice result persistence and retrieval
 - **SpeechRecognizer**: Fixed default language to en-US for English learning app
 - **FileManager Extensions**: Centralized directory creation with error handling
+- **MaterialService**: Refactored to use FileManager extensions consistently
+- **TextComparisonService**: Updated to return ComparisonResult for better separation of concerns
 
 ### Best Practices Applied
 - All service classes use singleton pattern (`.shared`)
@@ -243,6 +247,10 @@ ShadowingPractice2/
 - ✅ Created unified AppError model for consistent error handling
 - ✅ Fixed SpeechRecognizer result.transcription to result.text reference error
 - ✅ Implemented PracticeHistoryService for reading practice results from disk
+- ✅ Added materialId to PracticeResult for proper material-result relationship
+- ✅ Fixed MaterialService metadataFile scope error - Using FileManager extensions
+- ✅ Fixed AppError+Usage enum pattern matching with associated values
+- ✅ Fixed TextComparisonService to return ComparisonResult instead of PracticeResult
 
 ### Pending Features
 - ⏳ Material transcription caching
