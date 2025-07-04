@@ -29,14 +29,22 @@
 		18BCBE022E17F3E5008C4A75 /* ShadowingPractice2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShadowingPractice2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		18BCBDED2E17F3E2008C4A76 /* Exceptions for "ShadowingPractice2" folder in "ShadowingPractice2" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 18BCBDEA2E17F3E2008C4A75 /* ShadowingPractice2 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		18BCBDED2E17F3E2008C4A75 /* ShadowingPractice2 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				18BCBDED2E17F3E2008C4A76 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				18BCBDED2E17F3E2008C4A76 /* Exceptions for "ShadowingPractice2" folder in "ShadowingPractice2" target */,
 			);
-			explicitFileTypes = {};
-			explicitFolders = ();
 			path = ShadowingPractice2;
 			sourceTree = "<group>";
 		};
@@ -51,18 +59,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		18BCBDED2E17F3E2008C4A76 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			publicHeaders = (
-			);
-			target = 18BCBDEA2E17F3E2008C4A75 /* ShadowingPractice2 */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		18BCBDE82E17F3E2008C4A75 /* Frameworks */ = {

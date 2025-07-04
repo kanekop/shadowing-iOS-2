@@ -171,6 +171,9 @@ extension PracticeResult {
         let recognizedWordCount = recognizedText.split(separator: " ").count
         return Double(recognizedWordCount) / (duration / 60.0)
     }
+    
+    /// createdAtのエイリアス（互換性のため）
+    var recordedAt: Date { createdAt }
 }
 
 // MARK: - Sample Data

@@ -47,6 +47,7 @@ class PracticeViewModel: ObservableObject {
         
         // 結果作成
         let result = PracticeResult(
+            id: UUID(),  // 明示的にIDを指定
             recognizedText: recognizedText,
             originalText: originalText,
             wordAnalysis: comparisonResult.wordAnalysis,

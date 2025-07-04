@@ -206,16 +206,19 @@ struct ShadowingPracticeView: View {
         }
         
         // 音声終了時の処理
-        audioPlayer.onPlaybackFinished = { [weak recorder] in
+        audioPlayer.onPlaybackFinished = { [weak recorder, weak audioPlayer] in
             recorder?.stopRecording { result in
-                isPracticing = false
-                // 結果処理
-                switch result {
-                case .success(let url):
-                    // TODO: 評価処理
-                    print("録音完了: \(url)")
-                case .failure(let error):
-                    print("録音エラー: \(error)")
+                Task { @MainActor in
+                    isPracticing = false
+                    // 結果処理
+                    switch result {
+                    case .success(let url):
+                        // TODO: 評価処理
+                        print("録音完了: \(url)")
+                    case .failure(let error):
+                        print("録音エラー: \(error)")
+                    }
+                    audioPlayer?.onPlaybackFinished = nil  // クロージャを解放
                 }
             }
         }

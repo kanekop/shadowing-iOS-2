@@ -183,6 +183,7 @@ struct PracticeContentView: View {
     let onComplete: (PracticeResult) -> Void
     let onChangeMaterial: () -> Void
     
+    @StateObject private var viewModel = PracticeViewModel()
     @StateObject private var recorder = AudioRecorder()
     @State private var isPracticing = false
     @State private var showingResult = false
@@ -314,19 +315,26 @@ struct PracticeContentView: View {
     }
     
     private func analyzePractice(recordingURL: URL) async {
-        // TODO: 音声認識と評価の実装
-        // 仮の結果を表示
-        let result = PracticeResult(
-            recognizedText: "This is a sample recognized text",
-            originalText: material.transcription ?? "Original text not available",
-            wordAnalysis: [],
-            recordingURL: recordingURL,
-            duration: recorder.recordingTime,
-            practiceType: practiceMode
-        )
+        // ViewModelを使用して実際の処理を実行
+        viewModel.startPracticeSession(material: material, mode: practiceMode)
         
-        practiceResult = result
-        showingResult = true
+        do {
+            let result = try await viewModel.analyzePracticeRecording(
+                url: recordingURL, 
+                mode: practiceMode
+            )
+            
+            await MainActor.run {
+                practiceResult = result
+                showingResult = true
+            }
+        } catch {
+            await MainActor.run {
+                // エラー処理
+                print("練習の分析エラー: \(error)")
+                // エラーアラートを表示
+            }
+        }
     }
     
     private func handlePracticeComplete(_ result: PracticeResult) {

@@ -202,16 +202,22 @@ ShadowingPractice2/
 - ✅ Text comparison and diff display
 - ✅ Practice result scoring and analysis
 - ✅ Basic UI for all main features
+- ✅ Practice mode implementation (reading & shadowing)
+- ✅ History view with statistics
 
-### Known Issues Fixed
-- ✅ Enum placement inside Views
-- ✅ PracticeResult missing properties
-- ✅ Async/await in AudioRecorder
-- ✅ Type inference for enum cases
-- ✅ Codable conformance for models
+### Recently Fixed Issues
+- ✅ PracticeResult initialization signature mismatch - Fixed by adding explicit UUID
+- ✅ AVAudioSession proper deactivation for 0% recognition issue - Added delay for reliable deactivation
+- ✅ Memory leak in audio playback callbacks - Fixed with weak references
+- ✅ Shared components organization - Created SearchBar and EmptyStateView
+- ✅ PracticeView-ViewModel connection - Properly integrated with analyzePracticeRecording
+- ✅ Added recordedAt property alias to PracticeResult for compatibility
+- ✅ Created unified AppError model for consistent error handling
 
 ### Pending Features
-- ⏳ Practice history persistence
-- ⏳ Material transcription storage
+- ⏳ Practice history persistence to disk
+- ⏳ Material transcription caching
 - ⏳ Advanced statistics and progress tracking
 - ⏳ Export functionality for practice results
+- ⏳ iPad support
+- ⏳ Offline speech recognition optimization

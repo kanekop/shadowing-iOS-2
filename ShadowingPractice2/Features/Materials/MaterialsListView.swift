@@ -56,7 +56,7 @@ struct MaterialsListView: View {
         NavigationView {
             VStack(spacing: 0) {
                 // 検索バー
-                SearchBar(text: $searchText)
+                SearchBar(text: $searchText, placeholder: "教材を検索")
                     .padding(.horizontal)
                     .padding(.top, 8)
                 
@@ -87,7 +87,11 @@ struct MaterialsListView: View {
                 
                 // コンテンツ
                 if filteredMaterials.isEmpty {
-                    EmptyStateView()
+                    EmptyStateView(
+                        icon: "folder.badge.plus",
+                        title: "教材がありません",
+                        message: "音声ファイルをインポートするか\n録音して教材を作成してください"
+                    )
                 } else {
                     ScrollView {
                         if viewMode == .grid {
@@ -139,42 +143,6 @@ struct MaterialsListView: View {
                 MaterialDetailView(material: material)
             }
         }
-    }
-}
-
-// 検索バー
-struct SearchBar: View {
-    @Binding var text: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-            
-            TextField("教材を検索", text: $text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-        }
-    }
-}
-
-// 空の状態表示
-struct EmptyStateView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "folder.badge.plus")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            
-            Text("教材がありません")
-                .font(.title2)
-                .fontWeight(.medium)
-            
-            Text("音声ファイルをインポートするか\n録音して教材を作成してください")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
     }
 }
 

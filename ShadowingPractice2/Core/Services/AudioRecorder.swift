@@ -145,8 +145,10 @@ class AudioRecorder: NSObject, ObservableObject {
             self.isRecording = false
         }
         
-        // セッションを非アクティブ化
-        try? recordingSession.setActive(false)
+        // セッションを非アクティブ化（遅延を入れて確実に解放）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            try? AVAudioSession.sharedInstance().setActive(false)
+        }
     }
     
     /// 録音をキャンセル
