@@ -252,7 +252,7 @@ class SpeechRecognizer: ObservableObject {
     /// - Parameter url: 音声ファイルのURL
     /// - Returns: 文字起こし結果のテキスト
     func transcribeAudioFile(at url: URL) async throws -> String {
-        let engine = AppleSpeechRecognizerEngine()
+        let engine = AppleSpeechEngine()
         return try await engine.transcribeAudioFile(at: url)
     }
 }
@@ -299,6 +299,6 @@ class AppleSpeechEngine: SpeechRecognitionEngine {
         let options = SpeechRecognizer.RecognitionOptions()
         let language = Locale(identifier: "ja-JP") // デフォルトで日本語
         let result = try await recognizeFromFile(url: url, language: language, options: options)
-        return result.transcription
+        return result.text
     }
 }

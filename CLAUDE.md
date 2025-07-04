@@ -127,8 +127,10 @@ ShadowingPractice2/
 - `Core/Services/MaterialService.swift`: Material data management
 - `Core/Services/SpeechRecognizer.swift`: Speech-to-text functionality
 - `Core/Services/AudioRecorder.swift`: Audio recording management
+- `Core/Services/PracticeHistoryService.swift`: Practice history persistence and retrieval
 - `Features/Practice/PracticeViewModel.swift`: Core practice logic
 - `Core/Models/PracticeResult.swift`: Practice result data model with scoring
+- `Core/Models/AppError.swift`: Unified error handling model
 - `Core/Utilities/Logger.swift`: Centralized logging system
 - `Core/Utilities/FileManager+Extensions.swift`: File system helpers
 
@@ -213,9 +215,10 @@ ShadowingPractice2/
 - ✅ PracticeView-ViewModel connection - Properly integrated with analyzePracticeRecording
 - ✅ Added recordedAt property alias to PracticeResult for compatibility
 - ✅ Created unified AppError model for consistent error handling
+- ✅ Fixed SpeechRecognizer result.transcription to result.text reference error
+- ✅ Implemented PracticeHistoryService for reading practice results from disk
 
 ### Pending Features
-- ⏳ Practice history persistence to disk
 - ⏳ Material transcription caching
 - ⏳ Advanced statistics and progress tracking
 - ⏳ Export functionality for practice results
