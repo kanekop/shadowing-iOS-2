@@ -495,3 +495,362 @@ iOS development requires deep understanding of platform-specific knowledge and S
 - Always consider iOS version compatibility when using newer APIs
 
 Use these lessons to develop more robust iOS applications.
+
+## 10. SwiftUI Data Model Requirements
+
+### 10.1 Identifiable Protocol Conformance
+
+**Problem**: SwiftUI's `ForEach` and `sheet(item:)` modifiers require data models to conform to `Identifiable`
+
+**Error Message**:
+```
+Referencing initializer 'init(_:content:)' on 'ForEach' requires that 'PracticeResult' conform to 'Identifiable'
+Instance method 'sheet(item:onDismiss:content:)' requires that 'PracticeResult' conform to 'Identifiable'
+```
+
+**Solution**:
+```swift
+// Add Identifiable to struct/class declaration
+struct PracticeResult: Codable, Identifiable {
+    let id: UUID  // Must have an 'id' property
+    // ... other properties
+}
+```
+
+**Learnings**:
+- SwiftUI uses `Identifiable` to track view updates efficiently
+- Even if your model has an `id` property, you must explicitly conform to `Identifiable`
+- This is a compile-time requirement, not runtime
+
+### 10.2 Xcode Build Errors - Missing Bundle ID
+
+**Problem**: "Simulator device failed to install the application. Missing bundle ID."
+
+**Root Causes**:
+1. Info.plist missing required keys
+2. Build settings misconfiguration
+3. Xcode cache issues
+
+**Solution Steps**:
+1. **Check Info.plist**:
+   ```xml
+   <key>CFBundleIdentifier</key>
+   <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+   <key>CFBundleExecutable</key>
+   <string>$(EXECUTABLE_NAME)</string>
+   ```
+
+2. **Clean build artifacts**:
+   ```bash
+   rm -rf ~/Library/Developer/Xcode/DerivedData/*
+   ```
+
+3. **Xcode clean build**:
+   - Product → Clean Build Folder (⇧⌘K)
+   - Restart Xcode
+   - Simulator → Device → Erase All Content and Settings...
+
+4. **Verify project settings**:
+   - Check PRODUCT_BUNDLE_IDENTIFIER in project.pbxproj
+   - Ensure Team is selected in Signing & Capabilities
+
+**Learnings**:
+- Xcode cache can cause mysterious build failures
+- Info.plist may need explicit bundle ID references even with auto-generation
+- Always try clean build when encountering strange errors
+
+### 10.3 Build-Time vs Runtime Issues
+
+**Key Insight**: iOS development has two distinct types of issues:
+
+1. **Build-Time Issues** (caught by compiler):
+   - Missing protocol conformance
+   - Type mismatches
+   - Missing imports
+
+2. **Runtime Issues** (only discovered when running):
+   - AVAudioSession conflicts
+   - Permission denials
+   - File access errors
+
+**Best Practice**: Fix all build-time issues first before debugging runtime issues
+
+## 11. Debugging Philosophy
+
+### 11.1 Confidence in Solutions
+
+**Important**: 場当たり的な修正を避ける
+- 時間をかけて原因を分析する
+- 自信がある時だけ修正を行う
+- わからない時は正直に認める
+
+### 11.2 Error Pattern Recognition
+
+**Common Patterns**:
+1. **"requires that X conform to Y"** → Add protocol conformance
+2. **"Missing X"** → Check Info.plist or project settings
+3. **"Failed to install"** → Clean build and caches
+4. **"Cannot find X in scope"** → Check imports and access levels
+
+### 11.3 Systematic Approach
+
+1. **Read the full error message** - Often contains the solution
+2. **Check recent changes** - What did you modify last?
+3. **Verify assumptions** - Is the API really available?
+4. **Clean and rebuild** - Solves many cache-related issues
+5. **Document the solution** - Add to this lessons learned file
+
+## 12. Project-Specific Gotchas
+
+### 12.1 Auto-Modified Files
+
+**Observation**: Sometimes Xcode or build tools modify files automatically:
+- Info.plist may get CFBundleIdentifier added
+- Project files may be reformatted
+- Swift files may be auto-formatted
+
+**Best Practice**: 
+- Accept these changes if they fix issues
+- Use version control to track what changed
+- Don't fight the tools - they often know better
+
+### 12.2 The Frustration Factor
+
+**Reality Check**: iOS development can be frustrating because:
+- Error messages can be cryptic
+- Build system is complex
+- Many moving parts (Xcode, Swift, iOS SDK, Simulator)
+
+**Coping Strategy**:
+- Take breaks when stuck
+- Clean builds solve ~30% of weird issues
+- Community (Stack Overflow, Apple Forums) has seen it before
+- Document solutions for future reference
+
+この悔しさも、将来の開発の糧になります。
+
+## 13. Memory Management in Closures and Tasks
+
+### 13.1 EXC_BAD_ACCESS with Task Blocks
+
+**Problem**: Memory access violation when using `self` in Task blocks
+
+**Error**: `Thread 1: EXC_BAD_ACCESS (code=1, address=0xbeadddff7868)`
+
+**Incorrect Example**:
+```swift
+Task { @MainActor in
+    self.isRecording = false  // ❌ Can cause EXC_BAD_ACCESS
+}
+```
+
+**Correct Example**:
+```swift
+Task { @MainActor [weak self] in
+    self?.isRecording = false  // ✅ Safe with weak reference
+}
+```
+
+**Learnings**:
+- Always use `[weak self]` in Task blocks to prevent retain cycles
+- This is especially important in classes that might be deallocated
+- Timer callbacks and async operations should also use weak references
+
+### 13.2 Memory Management Best Practices
+
+**Common Patterns**:
+```swift
+// In timers
+Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+    Task { @MainActor [weak self] in
+        self?.updateUI()
+    }
+}
+
+// In completion handlers
+audioRecorder.stopRecording { [weak self] result in
+    self?.handleResult(result)
+}
+
+// In notification observers
+NotificationCenter.default.addObserver(
+    forName: .someNotification,
+    object: nil,
+    queue: .main
+) { [weak self] _ in
+    self?.handleNotification()
+}
+```
+
+## 14. SwiftUI View Integration Issues
+
+### 14.1 Missing View Actions
+
+**Problem**: Button actions left empty during development
+
+**Symptom**: Buttons appear but don't respond to taps
+
+**Example**:
+```swift
+// Incorrect - Empty action
+Button {
+    // 教材選択画面を表示
+} label: {
+    Text("教材を選択")
+}
+
+// Correct - Implement the action
+Button {
+    showingMaterialPicker = true
+} label: {
+    Text("教材を選択")
+}
+```
+
+**Learnings**:
+- Always implement button actions, even if temporary
+- Use TODO comments if implementation is pending
+- Test all interactive elements during development
+
+### 14.2 Sheet Presentation Pattern
+
+**Required Elements**:
+1. State variable to control presentation
+2. Button action to set state
+3. Sheet modifier with the view to present
+
+**Complete Pattern**:
+```swift
+struct SomeView: View {
+    @State private var showingPicker = false
+    
+    var body: some View {
+        VStack {
+            Button("Show Picker") {
+                showingPicker = true  // 2. Set state
+            }
+        }
+        .sheet(isPresented: $showingPicker) {  // 3. Sheet modifier
+            PickerView { selection in
+                // Handle selection
+            }
+        }
+    }
+}
+```
+
+## 15. Feature Implementation Patterns
+
+### 15.1 Audio Transcription Implementation
+
+**Problem**: Placeholder implementations that don't actually work
+
+**Example Issue**:
+```swift
+// Incorrect - Placeholder only
+func transcribeMaterial(_ material: Material) async throws {
+    Logger.shared.info("Transcription requested for material: \(material.title)")
+}
+```
+
+**Correct Implementation**:
+```swift
+func transcribeMaterial(_ material: Material) async throws {
+    // Check if already transcribing
+    if material.transcription != nil || material.isTranscribing {
+        return
+    }
+    
+    // Update status
+    var updatedMaterial = material
+    updatedMaterial.isTranscribing = true
+    updateMaterial(updatedMaterial)
+    
+    do {
+        // Perform actual transcription
+        let speechRecognizer = SpeechRecognizer.shared
+        let transcription = try await speechRecognizer.transcribeAudioFile(at: material.url)
+        
+        // Update with results
+        updatedMaterial.transcription = transcription
+        updatedMaterial.isTranscribing = false
+        updatedMaterial.transcriptionError = nil
+        updateMaterial(updatedMaterial)
+    } catch {
+        // Handle errors properly
+        updatedMaterial.isTranscribing = false
+        updatedMaterial.transcriptionError = error.localizedDescription
+        updateMaterial(updatedMaterial)
+        throw error
+    }
+}
+```
+
+**Key Points**:
+- Replace TODO comments with actual implementations
+- Include proper error handling
+- Update UI state at each step
+- Use existing services (don't reinvent the wheel)
+
+### 15.2 Service Method Extensions
+
+**Pattern**: When adding new functionality to existing services
+
+```swift
+extension SpeechRecognizer {
+    /// Convenience method for simple transcription
+    func transcribeAudioFile(at url: URL) async throws -> String {
+        let options = RecognitionOptions()
+        let result = try await recognizeFromFile(url: url, options: options)
+        return result.transcription
+    }
+}
+```
+
+**Best Practice**:
+- Add convenience methods as extensions
+- Reuse existing functionality
+- Keep method signatures simple for common use cases
+
+## 16. Debugging Workflow
+
+### 16.1 Visual Debugging with Screenshots
+
+**Effective Process**:
+1. User provides screenshot of issue
+2. Identify the specific view/component
+3. Search for relevant text in codebase
+4. Trace back to find the implementation
+5. Fix and verify
+
+**Example**:
+- Screenshot shows "教材を選択" button not working
+- Search for "教材を選択" in codebase
+- Find MaterialSelectionView
+- Discover empty button action
+- Implement missing functionality
+
+### 16.2 Common UI Issues and Solutions
+
+**Issue**: Features appear to work but nothing happens
+**Common Causes**:
+1. Missing button actions
+2. State variables not connected
+3. Sheet/alert not presented
+4. Async operations not awaited
+
+**Debugging Checklist**:
+- [ ] Is the button action implemented?
+- [ ] Is the state variable declared?
+- [ ] Is the sheet/navigation modifier present?
+- [ ] Are async operations properly handled?
+- [ ] Is the view model properly initialized?
+
+## Summary of Recent Fixes
+
+1. **Memory Management**: Added `[weak self]` to all Task blocks in AudioRecorder
+2. **UI Integration**: Connected MaterialSelectionView button to MaterialPickerView
+3. **Feature Implementation**: Implemented actual transcription functionality in MaterialService
+4. **Service Extensions**: Added transcribeAudioFile method to SpeechRecognizer
+
+These patterns repeat across iOS development - understanding them saves debugging time.

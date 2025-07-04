@@ -247,6 +247,14 @@ class SpeechRecognizer: ObservableObject {
             // 他の言語は必要に応じて追加
         ]
     }
+    
+    /// 音声ファイルを文字起こしする
+    /// - Parameter url: 音声ファイルのURL
+    /// - Returns: 文字起こし結果のテキスト
+    func transcribeAudioFile(at url: URL) async throws -> String {
+        let engine = AppleSpeechRecognizerEngine()
+        return try await engine.transcribeAudioFile(at: url)
+    }
 }
 
 // MARK: - Speech Recognition Engine Protocol
@@ -282,5 +290,15 @@ class AppleSpeechEngine: SpeechRecognitionEngine {
         recognitionOptions.language = language
         
         return try await recognizer.recognizeFromFile(url: url, options: recognitionOptions)
+    }
+    
+    /// 音声ファイルを文字起こしする
+    /// - Parameter url: 音声ファイルのURL
+    /// - Returns: 文字起こし結果のテキスト
+    func transcribeAudioFile(at url: URL) async throws -> String {
+        let options = SpeechRecognizer.RecognitionOptions()
+        let language = Locale(identifier: "ja-JP") // デフォルトで日本語
+        let result = try await recognizeFromFile(url: url, language: language, options: options)
+        return result.transcription
     }
 }

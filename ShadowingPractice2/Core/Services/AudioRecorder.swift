@@ -141,8 +141,8 @@ class AudioRecorder: NSObject, ObservableObject {
         
         stopTimers()
         
-        Task { @MainActor in
-            self.isRecording = false
+        Task { @MainActor [weak self] in
+            self?.isRecording = false
         }
         
         // セッションを非アクティブ化（遅延を入れて確実に解放）
@@ -158,10 +158,10 @@ class AudioRecorder: NSObject, ObservableObject {
         
         stopTimers()
         
-        Task { @MainActor in
-            self.isRecording = false
-            self.currentRecordingURL = nil
-            self.recordingTime = 0
+        Task { @MainActor [weak self] in
+            self?.isRecording = false
+            self?.currentRecordingURL = nil
+            self?.recordingTime = 0
         }
         
         try? recordingSession.setActive(false)
@@ -181,7 +181,7 @@ class AudioRecorder: NSObject, ObservableObject {
     private func startTimers(maxDuration: TimeInterval) {
         // 録音時間タイマー
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.recordingTime += 1
                 
                 // 最大時間チェック
@@ -198,7 +198,7 @@ class AudioRecorder: NSObject, ObservableObject {
         levelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             self?.audioRecorder?.updateMeters()
             let level = self?.audioRecorder?.averagePower(forChannel: 0) ?? -160
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.audioLevel = max(0, (level + 160) / 160)
             }
         }
@@ -258,8 +258,8 @@ extension AudioRecorder: AVAudioRecorderDelegate {
         stopRecordingCompletion?(.failure(.recordingFailed(errorMessage)))
         stopRecordingCompletion = nil
         
-        Task { @MainActor in
-            self.error = RecorderError.recordingFailed(errorMessage)
+        Task { @MainActor [weak self] in
+            self?.error = RecorderError.recordingFailed(errorMessage)
         }
     }
 }

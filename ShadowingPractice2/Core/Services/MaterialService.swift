@@ -312,8 +312,39 @@ class MaterialService: ObservableObject {
     
     /// 教材を文字起こしする（プレースホルダー）
     func transcribeMaterial(_ material: Material) async throws {
-        // この機能は別のサービスで実装される予定
-        Logger.shared.info("Transcription requested for material: \(material.title)")
+        Logger.shared.info("Starting transcription for material: \(material.title)")
+        
+        // 既に文字起こし済み、または文字起こし中の場合はスキップ
+        if material.transcription != nil || material.isTranscribing {
+            return
+        }
+        
+        // 文字起こし中フラグを立てる
+        var updatedMaterial = material
+        updatedMaterial.isTranscribing = true
+        updateMaterial(updatedMaterial)
+        
+        do {
+            // SpeechRecognizerを使用して文字起こし
+            let speechRecognizer = SpeechRecognizer.shared
+            let transcription = try await speechRecognizer.transcribeAudioFile(at: material.url)
+            
+            // 文字起こし結果を保存
+            updatedMaterial.transcription = transcription
+            updatedMaterial.isTranscribing = false
+            updatedMaterial.transcriptionError = nil
+            updateMaterial(updatedMaterial)
+            
+            Logger.shared.info("Transcription completed for material: \(material.title)")
+        } catch {
+            // エラーを記録
+            updatedMaterial.isTranscribing = false
+            updatedMaterial.transcriptionError = error.localizedDescription
+            updateMaterial(updatedMaterial)
+            
+            Logger.shared.error("Transcription failed for material: \(material.title), error: \(error)")
+            throw error
+        }
     }
     
     /// 録音したファイルをインポート（saveMaterialFromRecordingのエイリアス）

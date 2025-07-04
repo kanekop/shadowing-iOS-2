@@ -66,6 +66,7 @@ struct PracticeView: View {
 struct MaterialSelectionView: View {
     let onSelectMaterial: (Material) -> Void
     @State private var recentMaterials: [Material] = []
+    @State private var showingMaterialPicker = false
     
     var body: some View {
         VStack(spacing: 30) {
@@ -91,7 +92,7 @@ struct MaterialSelectionView: View {
             
             // 教材選択ボタン
             Button {
-                // 教材選択画面を表示
+                showingMaterialPicker = true
             } label: {
                 Label("教材を選択", systemImage: "folder.badge.plus")
                     .font(.headline)
@@ -128,6 +129,11 @@ struct MaterialSelectionView: View {
         .navigationTitle("練習")
         .onAppear {
             loadRecentMaterials()
+        }
+        .sheet(isPresented: $showingMaterialPicker) {
+            MaterialPickerView { material in
+                onSelectMaterial(material)
+            }
         }
     }
     
