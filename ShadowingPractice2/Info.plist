@@ -6,11 +6,15 @@
     <string>このアプリは発音練習のために音声を録音します。録音された音声はデバイス内でのみ処理され、外部に送信されることはありません。</string>
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>このアプリは録音した音声を文字起こしして、発音の正確性を評価します。音声認識はデバイス内で行われます。</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>UIFileSharingEnabled</key>
     <true/>
     <key>LSSupportsOpeningDocumentsInPlace</key>
     <true/>
     <key>UISupportsDocumentBrowser</key>
     <true/>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
 </dict>
 </plist>
