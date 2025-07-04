@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 // MARK: - AppError Usage Guidelines
 
@@ -111,19 +112,25 @@ extension AppError {
         switch self {
         case .material(let error):
             switch error {
-            case .accessDenied, .fileNotFound:
+            case .accessDenied:
                 return .critical
             case .fileTooLarge, .unsupportedFormat:
                 return .warning
-            default:
-                return .info
+            case .durationTooLong, .durationTooShort:
+                return .warning
+            case .importFailed(_), .deleteFailed(_), .loadFailed(_):
+                return .error
             }
             
         case .recording(let error):
             switch error {
             case .permissionDenied:
                 return .critical
-            default:
+            case .sessionConfigurationFailed:
+                return .error
+            case .fileNotFound:
+                return .error
+            case .recordingFailed(_), .saveFailed(_):
                 return .warning
             }
             
@@ -131,7 +138,9 @@ extension AppError {
             switch error {
             case .notAuthorized, .notAvailable:
                 return .critical
-            default:
+            case .languageNotSupported:
+                return .error
+            case .audioFileError(_), .recognitionFailed(_):
                 return .warning
             }
             
