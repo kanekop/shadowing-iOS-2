@@ -43,7 +43,7 @@ struct PracticeView: View {
                 // 練習画面
                 PracticeContentView(
                     material: selectedMaterial!,
-                    practiceMode: practiceMode,
+                    practiceMode: $practiceMode,
                     onComplete: { result in
                         // 練習完了後の処理
                         viewModel.savePracticeResult(result)
@@ -185,7 +185,7 @@ struct RecentMaterialCard: View {
 // 練習コンテンツビュー
 struct PracticeContentView: View {
     let material: Material
-    let practiceMode: PracticeMode
+    @Binding var practiceMode: PracticeMode
     let onComplete: (PracticeResult) -> Void
     let onChangeMaterial: () -> Void
     
@@ -210,7 +210,7 @@ struct PracticeContentView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // 練習モード選択
-                    Picker("練習モード", selection: .constant(practiceMode)) {
+                    Picker("練習モード", selection: $practiceMode) {
                         ForEach(PracticeMode.allCases, id: \.self) { mode in
                             Label(mode.rawValue, systemImage: mode.icon)
                                 .tag(mode)

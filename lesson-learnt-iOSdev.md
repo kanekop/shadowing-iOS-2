@@ -204,7 +204,62 @@ struct PracticeView: View {
 }
 ```
 
-### 3.2 ObservableObject Integration
+### 3.2 SwiftUI Binding Patterns
+
+**Problem**: Picker with `.constant()` binding doesn't allow user interaction
+
+**Incorrect Example**:
+```swift
+struct PracticeView: View {
+    @State private var practiceMode: PracticeMode = .reading
+    
+    var body: some View {
+        PracticeContentView(
+            practiceMode: practiceMode  // ❌ Passing value, not binding
+        )
+    }
+}
+
+struct PracticeContentView: View {
+    let practiceMode: PracticeMode  // ❌ Can't modify this
+    
+    var body: some View {
+        Picker("Mode", selection: .constant(practiceMode)) {  // ❌ Read-only
+            // ...
+        }
+    }
+}
+```
+
+**Correct Example**:
+```swift
+struct PracticeView: View {
+    @State private var practiceMode: PracticeMode = .reading
+    
+    var body: some View {
+        PracticeContentView(
+            practiceMode: $practiceMode  // ✅ Passing binding
+        )
+    }
+}
+
+struct PracticeContentView: View {
+    @Binding var practiceMode: PracticeMode  // ✅ Can modify parent's state
+    
+    var body: some View {
+        Picker("Mode", selection: $practiceMode) {  // ✅ Two-way binding
+            // ...
+        }
+    }
+}
+```
+
+**Key Learning**:
+- Use `@Binding` in child views to modify parent's `@State`
+- Pass bindings with `$` prefix
+- `.constant()` creates read-only bindings for display purposes only
+
+### 3.3 ObservableObject Integration
 
 **Pattern**:
 ```swift
