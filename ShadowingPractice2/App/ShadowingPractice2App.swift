@@ -32,20 +32,14 @@ struct ShadowingPractice2App: App {
     }
     
     private func createAppDirectories() {
-        let directories = [
-            FileManager.materialsDirectory,
-            FileManager.practicesDirectory,
-            FileManager.metadataDirectory,
-            FileManager.cacheDirectory
-        ]
+        // FileManager extensionsの静的プロパティが自動的にディレクトリを作成するため、
+        // 明示的な作成は不要です。ただし、初期化時にアクセスして作成を確実にします。
+        _ = FileManager.materialsDirectory
+        _ = FileManager.practicesDirectory
+        _ = FileManager.metadataDirectory
+        _ = FileManager.cacheDirectory
         
-        for directory in directories {
-            do {
-                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            } catch {
-                Logger.shared.error("Failed to create directory: \(error)")
-            }
-        }
+        Logger.shared.info("App directories initialized")
     }
     
     private func configureAudioSession() {

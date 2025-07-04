@@ -55,11 +55,7 @@ class PracticeHistoryService: ObservableObject {
     
     /// 特定の教材の練習結果を取得
     func getPracticeResults(for materialId: UUID) -> [PracticeResult] {
-        return practiceResults.filter { result in
-            // TODO: PracticeResultにmaterialIdを追加する必要がある
-            // 現在はオリジナルテキストで判定
-            return true
-        }
+        return practiceResults.filter { $0.materialId == materialId }
     }
     
     /// 練習結果を削除
@@ -111,11 +107,8 @@ class PracticeHistoryService: ObservableObject {
     private func loadPracticeResultsFromDisk() async throws -> [PracticeResult] {
         let practicesDir = FileManager.practicesDirectory
         
-        // ディレクトリが存在しない場合は作成
-        if !fileManager.fileExists(atPath: practicesDir.path) {
-            try fileManager.createDirectory(at: practicesDir, withIntermediateDirectories: true)
-            return []
-        }
+        // FileManager.practicesDirectoryは既に必要に応じてディレクトリを作成するので、
+        // 追加のチェックは不要
         
         // すべてのJSONファイルを取得
         let contents = try fileManager.contentsOfDirectory(

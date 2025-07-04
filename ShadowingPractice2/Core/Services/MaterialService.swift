@@ -22,9 +22,7 @@ class MaterialService: ObservableObject {
     
     // MARK: - Private Properties
     private let fileManager = FileManager.default
-    private let documentsDirectory: URL
-    private let materialsDirectory: URL
-    private let metadataFile: URL
+    private let logger = Logger.shared
     
     // MARK: - Constants
     private let maxFileSize: Int64 = 100_000_000 // 100MB
@@ -76,11 +74,6 @@ class MaterialService: ObservableObject {
     
     // MARK: - Initialization
     init() {
-        documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-        materialsDirectory = documentsDirectory.appendingPathComponent("materials")
-        metadataFile = documentsDirectory.appendingPathComponent("materials_metadata.json")
-        
-        setupDirectories()
         loadMaterials()
     }
     
@@ -118,7 +111,7 @@ class MaterialService: ObservableObject {
         }
         
         // ファイルコピー
-        let destinationURL = materialsDirectory
+        let destinationURL = FileManager.materialsDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension(url.pathExtension)
         
@@ -159,7 +152,7 @@ class MaterialService: ObservableObject {
         let durationSeconds = duration.seconds
         
         // ファイルを教材ディレクトリに移動
-        let destinationURL = materialsDirectory
+        let destinationURL = FileManager.materialsDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("m4a")
         
@@ -223,17 +216,6 @@ class MaterialService: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func setupDirectories() {
-        // 教材ディレクトリ作成
-        if !fileManager.fileExists(atPath: materialsDirectory.path) {
-            try? fileManager.createDirectory(
-                at: materialsDirectory,
-                withIntermediateDirectories: true,
-                attributes: nil
-            )
-        }
-    }
-    
     private func loadMaterials() {
         Task { @MainActor in
             isLoading = true
@@ -285,7 +267,7 @@ class MaterialService: ObservableObject {
     
     /// 古い練習録音を自動削除（30日以上前）
     func cleanupOldPracticeRecordings() {
-        let practicesDirectory = documentsDirectory.appendingPathComponent("practices")
+        let practicesDirectory = FileManager.practicesDirectory
         guard let files = try? fileManager.contentsOfDirectory(
             at: practicesDirectory,
             includingPropertiesForKeys: [.creationDateKey]

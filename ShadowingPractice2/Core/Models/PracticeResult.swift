@@ -13,6 +13,7 @@ import Foundation
 struct PracticeResult: Codable, Identifiable {
     let id: UUID
     let createdAt: Date
+    let materialId: UUID  // 教材との関連付け
     
     // 認識結果
     let recognizedText: String
@@ -40,6 +41,7 @@ struct PracticeResult: Codable, Identifiable {
     /// 新しい練習結果を作成
     init(
         id: UUID = UUID(),
+        materialId: UUID,
         recognizedText: String,
         originalText: String,
         wordAnalysis: [WordAnalysis],
@@ -49,6 +51,7 @@ struct PracticeResult: Codable, Identifiable {
     ) {
         self.id = id
         self.createdAt = Date()
+        self.materialId = materialId
         self.recognizedText = recognizedText
         self.originalText = originalText
         self.wordAnalysis = wordAnalysis
@@ -180,6 +183,7 @@ extension PracticeResult {
 #if DEBUG
 extension PracticeResult {
     static let sampleData = PracticeResult(
+        materialId: UUID(),
         recognizedText: "This is a sample text",
         originalText: "This is a sample text for testing",
         wordAnalysis: [

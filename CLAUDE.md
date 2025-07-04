@@ -49,6 +49,8 @@ xcodebuild analyze -project ShadowingPractice2.xcodeproj -scheme ShadowingPracti
 
 ## Architecture Overview
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architectural decisions and data model relationships.
+
 ### Directory Structure
 ```
 ShadowingPractice2/
@@ -75,7 +77,7 @@ ShadowingPractice2/
 2. **Service Layer**:
    - Singletons accessed via `.shared`
    - Handle business logic and data management
-   - Examples: `MaterialService`, `SpeechRecognizer`, `AudioRecorder`
+   - Examples: `MaterialService`, `SpeechRecognizer`, `AudioRecorder`, `PracticeHistoryService`
 
 3. **Data Flow**:
    - Local file storage in Documents directory
@@ -131,6 +133,7 @@ ShadowingPractice2/
 - `Features/Practice/PracticeViewModel.swift`: Core practice logic
 - `Core/Models/PracticeResult.swift`: Practice result data model with scoring
 - `Core/Models/AppError.swift`: Unified error handling model
+- `Core/Models/AppError+Usage.swift`: Error handling implementation guidelines
 - `Core/Utilities/Logger.swift`: Centralized logging system
 - `Core/Utilities/FileManager+Extensions.swift`: File system helpers
 
@@ -144,6 +147,22 @@ ShadowingPractice2/
 - Define enums at file top level for better reusability
 - Use weak self in closures and timers to prevent memory leaks
 - Prefer @StateObject for ViewModel initialization in Views
+
+## Error Handling Strategy
+
+1. **Service Layer**: Each service defines its own specific error types
+2. **ViewModel Layer**: Convert service errors to `AppError` for unified handling
+3. **View Layer**: Display errors using SwiftUI alerts with localized messages
+4. **Error Usage Pattern**:
+   ```swift
+   // In ViewModel
+   do {
+       try await someService.performAction()
+   } catch {
+       self.error = AppError.from(error)
+   }
+   ```
+5. See `AppError+Usage.swift` for detailed implementation guidelines
 
 ## Common Issues and Solutions
 
@@ -161,6 +180,12 @@ ShadowingPractice2/
 - **PracticeResult**: Extended with `recordingURL`, `duration`, `practiceType` properties
 - **PracticeResult**: Added computed properties: `score`, `accuracy`, `wordErrorRate`, `wordsPerMinute`
 - **PracticeMode**: Made `Codable` for persistence support
+- **AppError**: Created unified error model with usage guidelines
+
+### Service Updates
+- **PracticeHistoryService**: Added for practice result persistence and retrieval
+- **SpeechRecognizer**: Fixed default language to en-US for English learning app
+- **FileManager Extensions**: Centralized directory creation with error handling
 
 ### Best Practices Applied
 - All service classes use singleton pattern (`.shared`)
@@ -170,6 +195,7 @@ ShadowingPractice2/
 - Proper async/await usage in AudioRecorder and other services
 - Error handling with Result types in completion handlers
 - Proper memory management with weak self in closures
+- Unified error handling with AppError model
 
 ## Learning Documentation
 
@@ -221,6 +247,26 @@ ShadowingPractice2/
 ### Pending Features
 - ⏳ Material transcription caching
 - ⏳ Advanced statistics and progress tracking
-- ⏳ Export functionality for practice results
+- ⏳ Export functionality for practice results (CSV format planned)
 - ⏳ iPad support
 - ⏳ Offline speech recognition optimization
+- ⏳ Practice reminder notifications
+- ⏳ Detailed audio waveform display
+
+### Future Considerations (from spec v2.0)
+- 🔮 OpenAI Whisper API integration (Phase 2 - 6 months)
+- 🔮 Multi-language support (Japanese, Chinese)
+- 🔮 Material sharing functionality
+- 🔮 Cloud backup
+- 🔮 AI pronunciation coaching (Phase 3 - 1 year)
+- 🔮 Real-time pronunciation correction
+- 🔮 Social features (rankings, etc.)
+- 🔮 Material marketplace
+
+## Specification Alignment
+
+This implementation follows the requirements outlined in:
+- `complete-shadowing-spec.md` (v2.0) - Main functional specification
+- `development-guidelines.md` (v2.0) - Development standards and practices
+
+The current implementation covers all Phase 0 (MVP) features. Future phases including external API integrations (such as OpenAI Whisper) are documented in the spec but not yet implemented.
