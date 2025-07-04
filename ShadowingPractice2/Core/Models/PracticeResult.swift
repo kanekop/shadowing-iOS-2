@@ -10,7 +10,7 @@ import Foundation
 /// 練習結果の評価データモデル
 /// 
 /// 音声認識結果と評価スコアを保持する
-struct PracticeResult: Codable {
+struct PracticeResult: Codable, Identifiable {
     let id: UUID
     let createdAt: Date
     
