@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>このアプリは発音練習のために音声を録音します。録音された音声はデバイス内でのみ処理され、外部に送信されることはありません。</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>このアプリは録音した音声を文字起こしして、発音の正確性を評価します。音声認識はデバイス内で行われます。</string>
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>UISupportsDocumentBrowser</key>
+    <true/>
+</dict>
+</plist>
