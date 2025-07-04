@@ -10,7 +10,7 @@ ShadowingPractice2 is an iOS application for English pronunciation practice, spe
 
 - **IDE**: Xcode 16.3+
 - **Swift**: 5.0+
-- **Minimum iOS**: 18.4 (though documentation mentions iOS 17.0 compatibility)
+- **Minimum iOS**: 16.0
 - **UI Framework**: Pure SwiftUI (no UIKit except for special cases)
 - **Architecture**: MVVM with Services layer
 - **Dependencies**: None (pure Swift/SwiftUI implementation)
@@ -91,6 +91,7 @@ ShadowingPractice2/
    // Always deactivate after use
    try? AVAudioSession.sharedInstance().setActive(false)
    ```
+   - AudioRecorder now uses async/await for recording operations
 
 2. **File Access Security**:
    - Use security-scoped resources for imported files
@@ -126,7 +127,10 @@ ShadowingPractice2/
 - `Core/Services/MaterialService.swift`: Material data management
 - `Core/Services/SpeechRecognizer.swift`: Speech-to-text functionality
 - `Core/Services/AudioRecorder.swift`: Audio recording management
-- `Features/Practice/ViewModels/PracticeViewModel.swift`: Core practice logic
+- `Features/Practice/PracticeViewModel.swift`: Core practice logic
+- `Core/Models/PracticeResult.swift`: Practice result data model with scoring
+- `Core/Utilities/Logger.swift`: Centralized logging system
+- `Core/Utilities/FileManager+Extensions.swift`: File system helpers
 
 ## Development Guidelines
 
@@ -135,6 +139,9 @@ ShadowingPractice2/
 - Handle errors with user-friendly messages and recovery options
 - Test audio functionality thoroughly (permissions, session conflicts)
 - Ensure offline functionality for all core features
+- Define enums at file top level for better reusability
+- Use weak self in closures and timers to prevent memory leaks
+- Prefer @StateObject for ViewModel initialization in Views
 
 ## Common Issues and Solutions
 
@@ -142,3 +149,45 @@ ShadowingPractice2/
 2. **File Access Errors**: Verify security-scoped resource handling
 3. **UI Not Updating**: Ensure @MainActor for UI updates
 4. **Memory Leaks**: Use weak self in closures and timers
+5. **Enum Placement**: Define enums at file top level, not inside Views
+6. **Async Method Naming**: Use `Async` suffix for async versions of sync methods
+7. **Type Inference**: Use explicit type names for enum cases when needed
+
+## Recent Updates
+
+### Model Changes
+- **PracticeResult**: Extended with `recordingURL`, `duration`, `practiceType` properties
+- **PracticeResult**: Added computed properties: `score`, `accuracy`, `wordErrorRate`, `wordsPerMinute`
+- **PracticeMode**: Made `Codable` for persistence support
+
+### Best Practices Applied
+- All service classes use singleton pattern (`.shared`)
+- Logger provides both static and instance methods for flexibility
+- FileManager extensions use static properties for app directories
+- Enums moved outside of View structs for better accessibility
+- Proper async/await usage in AudioRecorder and other services
+- Error handling with Result types in completion handlers
+- Proper memory management with weak self in closures
+
+## Current Implementation Status
+
+### Completed Features
+- ✅ Material management (import, record, delete)
+- ✅ Audio recording with AVAudioRecorder
+- ✅ Speech recognition with SFSpeechRecognizer
+- ✅ Text comparison and diff display
+- ✅ Practice result scoring and analysis
+- ✅ Basic UI for all main features
+
+### Known Issues Fixed
+- ✅ Enum placement inside Views
+- ✅ PracticeResult missing properties
+- ✅ Async/await in AudioRecorder
+- ✅ Type inference for enum cases
+- ✅ Codable conformance for models
+
+### Pending Features
+- ⏳ Practice history persistence
+- ⏳ Material transcription storage
+- ⏳ Advanced statistics and progress tracking
+- ⏳ Export functionality for practice results

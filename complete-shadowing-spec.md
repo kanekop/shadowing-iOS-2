@@ -28,7 +28,7 @@
 ### 2.1 開発環境
 - **IDE**: Xcode 16.3以降
 - **言語**: Swift 5.0以降
-- **最小iOS**: iOS 17.0（実装の安定性を考慮して変更）
+- **最小iOS**: iOS 16.0
 - **UI Framework**: SwiftUI
 - **アーキテクチャ**: MVVM + Services層
 
