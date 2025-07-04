@@ -21,7 +21,7 @@ struct PracticeResult: Codable {
     // 練習情報
     let recordingURL: URL?
     let duration: TimeInterval
-    let practiceType: PracticeMode
+    var practiceType: PracticeMode
     
     // 評価スコア
     let overallScore: Double        // 0.0 - 100.0
