@@ -131,7 +131,7 @@ struct MaterialsListView: View {
             .sheet(isPresented: $showingRecorder) {
                 MaterialRecorderView { url in
                     Task {
-                        await viewModel.importRecordedFile(from: url)
+                        await viewModel.importRecordedFile(from: url, title: "録音した教材")
                     }
                 }
             }

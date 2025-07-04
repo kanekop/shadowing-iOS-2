@@ -22,21 +22,35 @@ enum EngineType: String, CaseIterable {
 }
 
 struct SettingsView: View {
-    @AppStorage("selectedEngine") private var selectedEngine: EngineType = .apple
+    @AppStorage("selectedEngine") private var selectedEngine = EngineType.apple.rawValue
     @AppStorage("enablePracticeReminder") private var enablePracticeReminder = false
-    @AppStorage("reminderTime") private var reminderTime = Date()
+    @AppStorage("reminderTime") private var reminderTimeInterval: Double = Date().timeIntervalSince1970
     @AppStorage("autoDeleteOldRecordings") private var autoDeleteOldRecordings = true
     @AppStorage("retentionDays") private var retentionDays = 30
     @State private var showingAbout = false
     @State private var showingLicenses = false
     @State private var showingDeleteConfirmation = false
     
+    private var reminderTime: Binding<Date> {
+        Binding(
+            get: { Date(timeIntervalSince1970: reminderTimeInterval) },
+            set: { reminderTimeInterval = $0.timeIntervalSince1970 }
+        )
+    }
+    
+    private var selectedEngineType: Binding<EngineType> {
+        Binding(
+            get: { EngineType(rawValue: selectedEngine) ?? .apple },
+            set: { selectedEngine = $0.rawValue }
+        )
+    }
+    
     var body: some View {
         NavigationView {
             Form {
                 // 音声認識設定
                 Section(header: Text("音声認識")) {
-                    Picker("認識エンジン", selection: $selectedEngine) {
+                    Picker("認識エンジン", selection: selectedEngineType) {
                         ForEach(EngineType.allCases, id: \.self) { engine in
                             HStack {
                                 Text(engine.displayName)
@@ -51,7 +65,7 @@ struct SettingsView: View {
                     }
                     .disabled(true) // 現在はAppleのみ
                     
-                    if selectedEngine != .apple {
+                    if selectedEngineType.wrappedValue != .apple {
                         HStack {
                             Image(systemName: "info.circle")
                                 .foregroundColor(.blue)
@@ -69,7 +83,7 @@ struct SettingsView: View {
                     if enablePracticeReminder {
                         DatePicker(
                             "リマインダー時刻",
-                            selection: $reminderTime,
+                            selection: reminderTime,
                             displayedComponents: .hourAndMinute
                         )
                     }

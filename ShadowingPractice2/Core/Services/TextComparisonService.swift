@@ -209,10 +209,10 @@ class TextComparisonService {
         var result: [WordAnalysis] = []
         var i = m
         var j = n
-        var position = 0
+        _ = 0
         
-        var originalIndex = m - 1
-        var recognizedIndex = n - 1
+        _ = m - 1
+        _ = n - 1
         
         // 逆順で解析してから反転
         var tempResult: [(word: String, type: WordAnalysis.DiffType)] = []

@@ -415,6 +415,75 @@ func deleteMaterialAsync(_ material: Material) async throws
 4. **Error Type Unification**: Consistent error handling across the app
 5. **Model Versioning**: Plan for data model evolution
 
+## 9. iOS Version Compatibility
+
+### 9.1 @AppStorage with Custom Types (iOS 18.0+)
+
+**Problem**: iOS 18.0 introduced new @AppStorage initializers that are not available in earlier versions
+
+**Incorrect Example (iOS 18.0+ only)**:
+```swift
+@AppStorage("selectedEngine") private var selectedEngine: EngineType = .apple
+@AppStorage("reminderTime") private var reminderTime = Date()
+```
+
+**Correct Example (iOS 16.0+)**:
+```swift
+// Store raw values instead of custom types
+@AppStorage("selectedEngine") private var selectedEngine = EngineType.apple.rawValue
+@AppStorage("reminderTime") private var reminderTimeInterval: Double = Date().timeIntervalSince1970
+
+// Create computed properties or Binding for conversion
+private var selectedEngineType: Binding<EngineType> {
+    Binding(
+        get: { EngineType(rawValue: selectedEngine) ?? .apple },
+        set: { selectedEngine = $0.rawValue }
+    )
+}
+
+private var reminderTime: Binding<Date> {
+    Binding(
+        get: { Date(timeIntervalSince1970: reminderTimeInterval) },
+        set: { reminderTimeInterval = $0.timeIntervalSince1970 }
+    )
+}
+```
+
+**Learnings**:
+- Always check iOS deployment target when using newer APIs
+- Use primitive types with @AppStorage for better compatibility
+- Create wrapper Bindings for type conversion when needed
+
+### 9.2 Actor Isolation in SwiftUI
+
+**Problem**: Modifying @State variables inside Task blocks requires proper actor isolation
+
+**Incorrect Example**:
+```swift
+Task {
+    try await someAsyncOperation()
+    isPracticing = true  // ❌ Cannot mutate from non-isolated context
+}
+```
+
+**Correct Example**:
+```swift
+Task { @MainActor in
+    try await someAsyncOperation()
+    isPracticing = true  // ✅ Properly isolated to MainActor
+}
+```
+
+**Alternative Pattern**:
+```swift
+Task {
+    try await someAsyncOperation()
+    await MainActor.run {
+        isPracticing = true
+    }
+}
+```
+
 ## Summary
 
 iOS development requires deep understanding of platform-specific knowledge and Swift language. Particularly:
@@ -423,5 +492,6 @@ iOS development requires deep understanding of platform-specific knowledge and S
 - Leverage Swift's type system and memory management
 - Design asynchronous processing carefully
 - Consistent architecture improves maintainability
+- Always consider iOS version compatibility when using newer APIs
 
 Use these lessons to develop more robust iOS applications.

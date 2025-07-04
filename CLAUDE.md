@@ -169,6 +169,30 @@ ShadowingPractice2/
 - Error handling with Result types in completion handlers
 - Proper memory management with weak self in closures
 
+## Learning Documentation
+
+このプロジェクトでは、バグ修正やリファクタリングを通じて得られた知見を **`lesson-learnt-iOSdev.md`** にまとめています。
+
+### 学習ドキュメントの目的
+- iOS開発における問題パターンと解決方法の記録
+- 同じミスを繰り返さないための参照資料
+- プロジェクト固有の設計判断の理由を文書化
+
+### 更新タイミング
+- 新しいバグを修正したとき
+- APIの使い方で問題が見つかったとき
+- アーキテクチャの改善を行ったとき
+- ビルド設定やプロジェクト構造の変更時
+
+### 主な内容
+1. **プロジェクト設定とビルドエラー**: Xcode特有の問題と解決策
+2. **Swift言語仕様とAPI使用方法**: 正しいコードパターン
+3. **SwiftUIとMVVMアーキテクチャ**: ベストプラクティス
+4. **iOS特有のAPI使用方法**: AVFoundation、UTTypeなど
+5. **デバッグとトラブルシューティング**: 効率的な問題解決方法
+
+開発中に遭遇した問題は必ず `lesson-learnt-iOSdev.md` に記録し、チーム全体で知識を共有してください。
+
 ## Current Implementation Status
 
 ### Completed Features

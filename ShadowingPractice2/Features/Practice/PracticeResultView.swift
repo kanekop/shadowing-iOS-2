@@ -93,8 +93,13 @@ struct PracticeResultView: View {
     }
     
     private func playRecording() {
+        guard let recordingURL = result.recordingURL else {
+            print("録音ファイルが見つかりません")
+            return
+        }
+        
         do {
-            audioPlayer = try AVAudioPlayer(contentsOf: result.recordingURL)
+            audioPlayer = try AVAudioPlayer(contentsOf: recordingURL)
             audioPlayer?.delegate = nil
             audioPlayer?.play()
             isPlayingRecording = true

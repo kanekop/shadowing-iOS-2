@@ -285,7 +285,7 @@ struct PracticeContentView: View {
                 showingCountdown = false
                 
                 // 録音開始
-                Task {
+                Task { @MainActor in
                     do {
                         try await recorder.startRecording(isMaterial: false)
                         isPracticing = true
@@ -317,20 +317,12 @@ struct PracticeContentView: View {
         // TODO: 音声認識と評価の実装
         // 仮の結果を表示
         let result = PracticeResult(
-            id: UUID(),
-            materialId: material.id,
-            practiceType: practiceMode == .reading ? .reading : .shadowing,
-            recordingURL: recordingURL,
-            recordedAt: Date(),
-            duration: recorder.recordingTime,
             recognizedText: "This is a sample recognized text",
-            score: 85.5,
-            wordErrorRate: 0.15,
-            accuracy: 85.5,
-            fluencyScore: 80.0,
-            pronunciationScore: 90.0,
-            wordsPerMinute: 120,
-            wordAnalysis: []
+            originalText: material.transcription ?? "Original text not available",
+            wordAnalysis: [],
+            recordingURL: recordingURL,
+            duration: recorder.recordingTime,
+            practiceType: practiceMode
         )
         
         practiceResult = result

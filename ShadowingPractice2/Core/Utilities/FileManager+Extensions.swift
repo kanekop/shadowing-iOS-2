@@ -131,7 +131,11 @@ extension FileManager {
         for file in files {
             if let creationDate = creationDate(at: file),
                creationDate < cutoffDate {
-                try? removeItem(at: file)
+                do {
+                    try removeItem(at: file)
+                } catch {
+                    Logger.shared.error("ファイル削除エラー: \(error)")
+                }
                 Logger.shared.info("古いファイルを削除: \(file.lastPathComponent)")
             }
         }
@@ -217,28 +221,44 @@ extension FileManager {
     /// 教材ディレクトリ
     static var materialsDirectory: URL {
         let directory = documentsDirectory.appendingPathComponent("materials")
-        try? FileManager.default.createSubdirectoryIfNeeded(named: "materials")
+        do {
+            try FileManager.default.createSubdirectoryIfNeeded(named: "materials")
+        } catch {
+            Logger.shared.error("教材ディレクトリ作成エラー: \(error)")
+        }
         return directory
     }
     
     /// 練習録音ディレクトリ
     static var practicesDirectory: URL {
         let directory = documentsDirectory.appendingPathComponent("practices")
-        try? FileManager.default.createSubdirectoryIfNeeded(named: "practices")
+        do {
+            try FileManager.default.createSubdirectoryIfNeeded(named: "practices")
+        } catch {
+            Logger.shared.error("練習録音ディレクトリ作成エラー: \(error)")
+        }
         return directory
     }
     
     /// メタデータディレクトリ
     static var metadataDirectory: URL {
         let directory = documentsDirectory.appendingPathComponent("metadata")
-        try? FileManager.default.createSubdirectoryIfNeeded(named: "metadata")
+        do {
+            try FileManager.default.createSubdirectoryIfNeeded(named: "metadata")
+        } catch {
+            Logger.shared.error("メタデータディレクトリ作成エラー: \(error)")
+        }
         return directory
     }
     
     /// キャッシュディレクトリ
     static var cacheDirectory: URL {
         let directory = documentsDirectory.appendingPathComponent("cache")
-        try? FileManager.default.createSubdirectoryIfNeeded(named: "cache")
+        do {
+            try FileManager.default.createSubdirectoryIfNeeded(named: "cache")
+        } catch {
+            Logger.shared.error("キャッシュディレクトリ作成エラー: \(error)")
+        }
         return directory
     }
 }

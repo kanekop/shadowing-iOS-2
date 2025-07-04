@@ -169,7 +169,7 @@ class AudioRecorder: NSObject, ObservableObject {
     
     private func requestPermission() async -> Bool {
         await withCheckedContinuation { continuation in
-            // Using the method that works in iOS 17+ without deprecation warning
+            // Using the method that works in iOS 16+ without deprecation warning
             AVAudioSession.sharedInstance().requestRecordPermission { granted in
                 continuation.resume(returning: granted)
             }
