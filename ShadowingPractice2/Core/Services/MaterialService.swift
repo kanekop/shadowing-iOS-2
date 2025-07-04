@@ -74,6 +74,7 @@ class MaterialService: ObservableObject {
     
     // MARK: - Initialization
     init() {
+        // 教材の読み込み
         loadMaterials()
     }
     
@@ -222,6 +223,7 @@ class MaterialService: ObservableObject {
         }
         
         // メタデータファイルから読み込み
+        let metadataFile = FileManager.metadataDirectory.appendingPathComponent("materials_metadata.json")
         guard fileManager.fileExists(atPath: metadataFile.path) else {
             Task { @MainActor in
                 isLoading = false
@@ -259,6 +261,7 @@ class MaterialService: ObservableObject {
         
         do {
             let data = try encoder.encode(materials)
+            let metadataFile = FileManager.metadataDirectory.appendingPathComponent("materials_metadata.json")
             try data.write(to: metadataFile)
         } catch {
             Logger.shared.error("教材メタデータの保存に失敗: \(error)")
