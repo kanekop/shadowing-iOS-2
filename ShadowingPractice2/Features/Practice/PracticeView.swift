@@ -153,26 +153,27 @@ struct RecentMaterialCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 Image(systemName: material.sourceType == .imported ? "doc.fill" : "mic.fill")
-                    .font(.title2)
-                    .foregroundColor(.accentColor)
+                    .font(.system(size: DesignSystem.Size.iconMedium))
+                    .foregroundColor(DesignSystem.Colors.accent)
                 
                 Text(material.title)
-                    .font(.caption)
+                    .font(DesignSystem.Typography.bodySmall)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 
                 Text(formatDuration(material.duration))
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
             }
             .frame(width: 120, height: 100)
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .padding(DesignSystem.Spacing.sm)
+            .background(DesignSystem.Colors.backgroundSecondary)
+            .cornerRadius(DesignSystem.Radius.large)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(ButtonPressStyle())
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -358,34 +359,32 @@ struct PracticeHeaderView: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxs) {
                 Text(material.title)
-                    .font(.headline)
+                    .font(DesignSystem.Typography.h4)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .lineLimit(1)
                 
-                HStack {
+                HStack(spacing: DesignSystem.Spacing.xs) {
                     Label(practiceMode.rawValue, systemImage: practiceMode.icon)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     Text("•")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     Text(formatDuration(material.duration))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                 }
             }
             
             Spacer()
             
-            Button("変更") {
-                onChangeMaterial()
-            }
-            .font(.caption)
+            TextButton(title: "変更", action: onChangeMaterial)
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .padding(DesignSystem.Spacing.md)
+        .background(DesignSystem.Colors.backgroundSecondary)
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -405,11 +404,11 @@ struct CountdownOverlay: View {
                 .ignoresSafeArea()
             
             Text("\(value)")
-                .font(.system(size: 120, weight: .bold, design: .rounded))
+                .font(DesignSystem.Typography.displayMedium) // 48pt instead of 120pt
                 .foregroundColor(.white)
                 .scaleEffect(value == 0 ? 1.5 : 1.0)
                 .opacity(value == 0 ? 0 : 1)
-                .animation(.easeOut(duration: 0.3), value: value)
+                .animation(DesignSystem.Animation.springBouncy, value: value)
         }
     }
 }

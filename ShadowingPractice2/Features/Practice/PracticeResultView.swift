@@ -15,66 +15,70 @@ struct PracticeResultView: View {
             VStack(spacing: 0) {
                 // スコアヘッダー
                 ScoreHeaderView(score: result.score)
-                    .padding()
+                    .padding(DesignSystem.Spacing.md)
                 
                 // タブ選択
                 Picker("結果表示", selection: $selectedTab) {
-                    Text("概要").tag(0)
-                    Text("詳細").tag(1)
-                    Text("差分").tag(2)
+                    Text("詳細").tag(0)
+                    Text("差分").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.bottom, DesignSystem.Spacing.xs)
                 
                 // コンテンツ
                 TabView(selection: $selectedTab) {
-                    // 概要タブ
-                    SummaryView(result: result)
-                        .tag(0)
-                    
-                    // 詳細タブ
-                    DetailView(result: result)
-                        .tag(1)
+                    // 詳細タブ (概要と詳細を統合)
+                    ScrollView {
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            // メトリクスグリッド
+                            MetricsGridView(result: result)
+                                .padding(.horizontal, DesignSystem.Spacing.md)
+                            
+                            // 認識されたテキスト
+                            if !result.recognizedText.isEmpty {
+                                CardView {
+                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                        Text("認識されたテキスト")
+                                            .font(DesignSystem.Typography.h4)
+                                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                                        
+                                        Text(result.recognizedText)
+                                            .font(DesignSystem.Typography.bodyMedium)
+                                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                                    }
+                                }
+                                .padding(.horizontal, DesignSystem.Spacing.md)
+                            }
+                        }
+                        .padding(.vertical, DesignSystem.Spacing.md)
+                    }
+                    .tag(0)
                     
                     // 差分タブ
                     DiffView(result: result)
-                        .tag(2)
+                        .tag(1)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 
                 // アクションボタン
-                HStack(spacing: 20) {
+                HStack(spacing: DesignSystem.Spacing.md) {
                     // 録音再生ボタン
-                    Button {
-                        togglePlayback()
-                    } label: {
-                        Label(
-                            isPlayingRecording ? "停止" : "録音を再生",
-                            systemImage: isPlayingRecording ? "stop.circle" : "play.circle"
-                        )
-                        .font(.body)
-                    }
-                    .buttonStyle(.bordered)
+                    SecondaryButton(title: isPlayingRecording ? "停止" : "録音を再生", action: togglePlayback)
                     
                     // もう一度ボタン
-                    Button {
+                    PrimaryButton(title: "もう一度", action: {
                         onRetry()
                         dismiss()
-                    } label: {
-                        Label("もう一度", systemImage: "arrow.clockwise")
-                            .font(.body)
-                    }
-                    .buttonStyle(.borderedProminent)
+                    })
                 }
-                .padding()
+                .padding(DesignSystem.Spacing.md)
             }
             .navigationTitle("練習結果")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完了") {
-                        dismiss()
-                    }
+                    TextButton(title: "完了", action: { dismiss() })
                 }
             }
         }
@@ -120,60 +124,44 @@ struct ScoreHeaderView: View {
     
     var scoreColor: Color {
         if score >= 90 {
-            return .green
+            return DesignSystem.Colors.success
         } else if score >= 70 {
-            return .orange
+            return DesignSystem.Colors.warning
         } else {
-            return .red
-        }
-    }
-    
-    var scoreEmoji: String {
-        if score >= 90 {
-            return "🎉"
-        } else if score >= 80 {
-            return "😊"
-        } else if score >= 70 {
-            return "🙂"
-        } else if score >= 60 {
-            return "😐"
-        } else {
-            return "😔"
+            return DesignSystem.Colors.error
         }
     }
     
     var body: some View {
-        VStack(spacing: 16) {
-            // スコアサークル
-            ZStack {
-                Circle()
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 20)
-                    .frame(width: 180, height: 180)
-                
-                Circle()
-                    .trim(from: 0, to: score / 100)
-                    .stroke(scoreColor, style: StrokeStyle(lineWidth: 20, lineCap: .round))
-                    .frame(width: 180, height: 180)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.easeOut(duration: 1.0), value: score)
-                
-                VStack(spacing: 8) {
-                    Text(scoreEmoji)
-                        .font(.system(size: 40))
+        CardView {
+            VStack(spacing: DesignSystem.Spacing.md) {
+                // スコアサークル
+                ZStack {
+                    ProgressCircleView(
+                        value: score,
+                        total: 100,
+                        size: DesignSystem.Size.progressCircleLarge,
+                        lineWidth: 12,
+                        strokeColor: scoreColor
+                    )
                     
-                    Text(String(format: "%.1f", score))
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
-                    
-                    Text("点")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
+                    VStack(spacing: DesignSystem.Spacing.xxs) {
+                        Text(String(format: "%.1f", score))
+                            .font(DesignSystem.Typography.displayMedium)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Text("点")
+                            .font(DesignSystem.Typography.bodySmall)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
                 }
+                
+                // 評価メッセージ
+                Text(getEvaluationMessage(score: score))
+                    .font(DesignSystem.Typography.bodyLarge)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                    .multilineTextAlignment(.center)
             }
-            
-            // 評価メッセージ
-            Text(getEvaluationMessage(score: score))
-                .font(.headline)
-                .multilineTextAlignment(.center)
         }
     }
     
@@ -194,7 +182,7 @@ struct ScoreHeaderView: View {
     }
 }
 
-// 概要ビュー
+// 概要ビュー (古いコード - 使用されていない)
 struct SummaryView: View {
     let result: PracticeResult
     
@@ -262,6 +250,49 @@ struct SummaryView: View {
     }
 }
 
+// メトリックグリッドビュー
+struct MetricsGridView: View {
+    let result: PracticeResult
+    
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignSystem.Spacing.md) {
+            MetricItem(
+                title: "認識精度",
+                value: String(format: "%.1f%%", result.accuracy),
+                icon: "checkmark.circle.fill",
+                color: DesignSystem.Colors.success
+            )
+            
+            MetricItem(
+                title: "単語数",
+                value: "\(result.totalWords)",
+                icon: "text.word.spacing",
+                color: DesignSystem.Colors.info
+            )
+            
+            MetricItem(
+                title: "所要時間",
+                value: formatDuration(result.duration),
+                icon: "clock.fill",
+                color: DesignSystem.Colors.warning
+            )
+            
+            MetricItem(
+                title: "WPM",
+                value: "\(Int(result.wordsPerMinute))",
+                icon: "speedometer",
+                color: DesignSystem.Colors.accent
+            )
+        }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
 // メトリックアイテム
 struct MetricItem: View {
     let title: String
@@ -270,18 +301,21 @@ struct MetricItem: View {
     let color: Color
     
     var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text(value)
-                .font(.title3)
-                .fontWeight(.semibold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+        CardView {
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                Image(systemName: icon)
+                    .font(.system(size: DesignSystem.Size.iconMedium))
+                    .foregroundColor(color)
+                
+                Text(value)
+                    .font(DesignSystem.Typography.h4)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+                Text(title)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+            }
+            .frame(maxWidth: .infinity)
         }
     }
 }

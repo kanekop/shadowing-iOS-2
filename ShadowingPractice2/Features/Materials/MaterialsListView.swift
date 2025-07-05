@@ -54,11 +54,12 @@ struct MaterialsListView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
+            ZStack {
+                VStack(spacing: 0) {
                 // 検索バー
-                SearchBar(text: $searchText, placeholder: "教材を検索")
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+                StandardSearchBar(text: $searchText, placeholder: "教材を検索")
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.xs)
                 
                 // ビュー切り替えとソート
                 HStack {
@@ -79,11 +80,12 @@ struct MaterialsListView: View {
                         }
                     } label: {
                         Label("並び替え: \(sortOrder.rawValue)", systemImage: "arrow.up.arrow.down")
-                            .font(.caption)
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.vertical, DesignSystem.Spacing.xs)
                 
                 // コンテンツ
                 if filteredMaterials.isEmpty {
@@ -96,35 +98,41 @@ struct MaterialsListView: View {
                     ScrollView {
                         if viewMode == .grid {
                             MaterialGridView(materials: filteredMaterials, selectedMaterial: $selectedMaterial)
-                                .padding()
+                                .padding(DesignSystem.Spacing.md)
                         } else {
                             MaterialListContentView(materials: filteredMaterials, selectedMaterial: $selectedMaterial)
-                                .padding(.horizontal)
+                                .padding(.horizontal, DesignSystem.Spacing.md)
                         }
                     }
+                }
+                
+                // FAB
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        
+                        Menu {
+                            Button {
+                                showingFilePicker = true
+                            } label: {
+                                Label("ファイルから追加", systemImage: "doc.badge.plus")
+                            }
+                            
+                            Button {
+                                showingRecorder = true
+                            } label: {
+                                Label("録音して追加", systemImage: "mic.badge.plus")
+                            }
+                        } label: {
+                            FloatingActionButton(systemName: "plus", action: {})
+                        }
+                    }
+                    .padding(DesignSystem.Spacing.md)
                 }
             }
             .navigationTitle("教材")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button {
-                            showingFilePicker = true
-                        } label: {
-                            Label("ファイルから追加", systemImage: "doc.badge.plus")
-                        }
-                        
-                        Button {
-                            showingRecorder = true
-                        } label: {
-                            Label("録音して追加", systemImage: "mic.badge.plus")
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title3)
-                    }
-                }
-            }
+            }  // ZStack closing brace
             .sheet(isPresented: $showingFilePicker) {
                 DocumentPicker(completion: { url in
                     Task {
@@ -152,11 +160,11 @@ struct MaterialGridView: View {
     @Binding var selectedMaterial: Material?
     
     let columns = [
-        GridItem(.adaptive(minimum: 150))
+        GridItem(.adaptive(minimum: DesignSystem.Size.materialCardMinWidth))
     ]
     
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
+        LazyVGrid(columns: columns, spacing: DesignSystem.Spacing.md) {
             ForEach(materials) { material in
                 MaterialGridItem(material: material)
                     .onTapGesture {
@@ -172,58 +180,60 @@ struct MaterialGridItem: View {
     let material: Material
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // アイコン部分
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.accentColor.opacity(0.1))
-                    .frame(height: 100)
-                
-                VStack(spacing: 4) {
-                    Image(systemName: material.sourceType == .imported ? "doc.fill" : "mic.fill")
-                        .font(.title2)
-                        .foregroundColor(.accentColor)
+        CardView {
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                // アイコン部分
+                ZStack {
+                    RoundedRectangle(cornerRadius: DesignSystem.Radius.medium)
+                        .fill(DesignSystem.Colors.accent.opacity(0.1))
+                        .aspectRatio(DesignSystem.Size.materialCardAspectRatio, contentMode: .fit)
                     
-                    if material.isTranscribing {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    } else if material.transcription != nil {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.caption)
+                    VStack(spacing: DesignSystem.Spacing.xxs) {
+                        Image(systemName: material.sourceType == .imported ? "doc.fill" : "mic.fill")
+                            .font(.system(size: DesignSystem.Size.iconLarge))
+                            .foregroundColor(DesignSystem.Colors.accent)
+                        
+                        if material.isTranscribing {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else if material.transcription != nil {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(DesignSystem.Colors.success)
+                                .font(.system(size: DesignSystem.Size.iconSmall))
+                        }
                     }
                 }
-            }
-            
-            // テキスト情報
-            VStack(alignment: .leading, spacing: 4) {
-                Text(material.title)
-                    .font(.headline)
-                    .lineLimit(2)
                 
-                HStack {
-                    Image(systemName: "clock")
-                        .font(.caption2)
-                    Text(formatDuration(material.duration))
-                        .font(.caption)
-                }
-                .foregroundColor(.secondary)
-                
-                if material.practiceCount > 0 {
-                    HStack {
-                        Image(systemName: "checkmark.circle")
-                            .font(.caption2)
-                        Text("\(material.practiceCount)回練習")
-                            .font(.caption)
+                // テキスト情報
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxs) {
+                    Text(material.title)
+                        .font(DesignSystem.Typography.bodyMedium)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    HStack(spacing: DesignSystem.Spacing.xxs) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 12))
+                        Text(formatDuration(material.duration))
+                            .font(DesignSystem.Typography.caption)
                     }
-                    .foregroundColor(.secondary)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    
+                    if material.practiceCount > 0 {
+                        HStack(spacing: DesignSystem.Spacing.xxs) {
+                            Image(systemName: "checkmark.circle")
+                                .font(.system(size: 12))
+                            Text("\(material.practiceCount)回練習")
+                                .font(DesignSystem.Typography.caption)
+                        }
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 4)
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .frame(minWidth: DesignSystem.Size.materialCardMinWidth)
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -239,7 +249,7 @@ struct MaterialListContentView: View {
     @Binding var selectedMaterial: Material?
     
     var body: some View {
-        LazyVStack(spacing: 8) {
+        LazyVStack(spacing: DesignSystem.Spacing.xs) {
             ForEach(materials) { material in
                 MaterialListItem(material: material)
                     .onTapGesture {
@@ -255,19 +265,20 @@ struct MaterialListItem: View {
     let material: Material
     
     var body: some View {
-        HStack {
+        HStack(spacing: DesignSystem.Spacing.sm) {
             // アイコン
             Image(systemName: material.sourceType == .imported ? "doc.fill" : "mic.fill")
-                .font(.title2)
-                .foregroundColor(.accentColor)
-                .frame(width: 40)
+                .font(.system(size: DesignSystem.Size.iconMedium))
+                .foregroundColor(DesignSystem.Colors.accent)
+                .frame(width: DesignSystem.Size.minTouchTarget)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxs) {
                 Text(material.title)
-                    .font(.headline)
+                    .font(DesignSystem.Typography.bodyLarge)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .lineLimit(1)
                 
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.sm) {
                     Label(formatDuration(material.duration), systemImage: "clock")
                     
                     if material.practiceCount > 0 {
@@ -276,25 +287,26 @@ struct MaterialListItem: View {
                     
                     if material.isTranscribing {
                         Label("文字起こし中", systemImage: "ellipsis")
-                            .foregroundColor(.orange)
+                            .foregroundColor(DesignSystem.Colors.warning)
                     } else if material.transcription != nil {
                         Label("文字起こし済み", systemImage: "text.bubble")
-                            .foregroundColor(.green)
+                            .foregroundColor(DesignSystem.Colors.success)
                     }
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
             }
             
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.system(size: DesignSystem.Size.iconSmall))
+                .foregroundColor(DesignSystem.Colors.textTertiary)
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
+        .padding(DesignSystem.Spacing.md)
+        .frame(minHeight: DesignSystem.Size.listItemHeight)
+        .background(DesignSystem.Colors.backgroundSecondary)
+        .cornerRadius(DesignSystem.Radius.standard)
     }
     
     private func formatDuration(_ duration: TimeInterval) -> String {

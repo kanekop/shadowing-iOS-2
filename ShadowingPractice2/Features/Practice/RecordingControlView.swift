@@ -8,31 +8,63 @@ struct RecordingControlView: View {
     let onStart: () -> Void
     let onStop: () -> Void
     
+    @State private var isPulsing = false
+    
     var body: some View {
-        VStack(spacing: 20) {
-            // 録音時間表示
+        VStack(spacing: DesignSystem.Spacing.xl) {
+            // Timer Container
             if isPracticing {
-                Text(formatTime(recorder.recordingTime))
-                    .font(.system(size: 36, weight: .medium, design: .monospaced))
-                    .foregroundColor(.primary)
+                CardView {
+                    VStack(spacing: DesignSystem.Spacing.xs) {
+                        Text(formatTime(recorder.recordingTime))
+                            .font(DesignSystem.Typography.monospace)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        // Progress Bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                Rectangle()
+                                    .fill(DesignSystem.Colors.separator)
+                                    .frame(height: 6)
+                                    .cornerRadius(3)
+                                
+                                Rectangle()
+                                    .fill(DesignSystem.Colors.accent)
+                                    .frame(width: min(geometry.size.width * CGFloat(recorder.recordingTime / 120.0), geometry.size.width), height: 6)
+                                    .cornerRadius(3)
+                                    .animation(DesignSystem.Animation.easeOutFast, value: recorder.recordingTime)
+                            }
+                        }
+                        .frame(height: 6)
+                        
+                        Text("最大 2分")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                }
+                .padding(.horizontal, DesignSystem.Spacing.md)
             }
             
-            // 録音ボタン
+            // Recording Button
             ZStack {
-                // パルスアニメーション
+                // Pulse animation background
                 if isPracticing {
                     Circle()
-                        .fill(Color.red.opacity(0.3))
-                        .frame(width: 100, height: 100)
-                        .scaleEffect(isPracticing ? 1.3 : 1.0)
-                        .animation(
-                            .easeInOut(duration: 0.8)
-                            .repeatForever(autoreverses: true),
-                            value: isPracticing
-                        )
+                        .fill(DesignSystem.Colors.error.opacity(0.2))
+                        .frame(width: DesignSystem.Size.recordingButton * 1.1, height: DesignSystem.Size.recordingButton * 1.1)
+                        .scaleEffect(isPulsing ? 1.1 : 1.0)
+                        .opacity(isPulsing ? 0.8 : 1.0)
+                        .onAppear {
+                            withAnimation(DesignSystem.Animation.recordingPulse) {
+                                isPulsing = true
+                            }
+                        }
+                        .onDisappear {
+                            isPulsing = false
+                        }
                 }
                 
-                // メインボタン
+                // Main button
                 Button {
                     if isPracticing {
                         onStop()
@@ -42,46 +74,46 @@ struct RecordingControlView: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .fill(isPracticing ? Color.red : Color.red.opacity(0.8))
-                            .frame(width: 80, height: 80)
+                            .fill(isPracticing ? DesignSystem.Colors.error : DesignSystem.Colors.backgroundSecondary)
+                            .frame(width: DesignSystem.Size.recordingButton, height: DesignSystem.Size.recordingButton)
+                            .overlay(
+                                Circle()
+                                    .stroke(isPracticing ? DesignSystem.Colors.error : DesignSystem.Colors.separator, lineWidth: 2)
+                            )
                         
-                        if isPracticing {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.white)
-                                .frame(width: 24, height: 24)
-                        } else {
-                            Circle()
-                                .fill(Color.white)
-                                .frame(width: 30, height: 30)
-                        }
+                        Image(systemName: isPracticing ? "stop.fill" : "mic.fill")
+                            .font(.system(size: DesignSystem.Size.recordingButtonIcon))
+                            .foregroundColor(isPracticing ? .white : DesignSystem.Colors.error)
                     }
                 }
+                .buttonStyle(ButtonPressStyle())
                 .disabled(showingCountdown)
             }
             
-            // ステータステキスト
+            // Status Label
             if isPracticing {
-                HStack(spacing: 8) {
+                HStack(spacing: DesignSystem.Spacing.xs) {
                     Circle()
-                        .fill(Color.red)
+                        .fill(DesignSystem.Colors.error)
                         .frame(width: 8, height: 8)
-                        .opacity(isPracticing ? 1 : 0)
+                        .opacity(isPulsing ? 0.5 : 1.0)
                         .animation(
-                            .easeInOut(duration: 0.5)
-                            .repeatForever(autoreverses: true),
-                            value: isPracticing
+                            Animation.easeInOut(duration: 0.8)
+                                .repeatForever(autoreverses: true),
+                            value: isPulsing
                         )
                     
                     Text("録音中")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(DesignSystem.Typography.label)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                 }
             } else if !showingCountdown {
-                Text("タップして録音開始")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text("録音を開始")
+                    .font(DesignSystem.Typography.label)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
             }
         }
+        .padding(.bottom, DesignSystem.Spacing.xl)
     }
     
     private func formatTime(_ time: TimeInterval) -> String {
